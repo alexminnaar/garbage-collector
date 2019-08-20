@@ -89,6 +89,10 @@ public:
     static void showlist();
     // Clear refContainer when program exits.
     static void shutdown();
+
+    template<typename U, int size_u>
+    friend void swap(Pointer<U, size_u> &, Pointer<U, size_u> &);
+
 };
 
 // STATIC INITIALIZATION
@@ -111,8 +115,8 @@ Pointer<T,size>::Pointer(T *t){
 
     addr = t;
 
-    is_array = (size > 0);
-    array_size = size;
+    isArray = (size > 0);
+    arraySize = size;
 
     auto ptr_info_it = findPtrInfo(t);
 
@@ -124,9 +128,9 @@ Pointer<T,size>::Pointer(T *t){
         PtrDetails<T> ptr_details;
         ptr_details.refcount=1;
         ptr_details.memPtr=t;
-        ptr_details.is_array=is_array;
-        ptr_details.array_size = array_size;
-        refContainer.push_back(PtrDetails);
+        ptr_details.is_array=isArray;
+        ptr_details.array_size = arraySize;
+        refContainer.push_back(ptr_details);
     }
 
 }
@@ -242,4 +246,15 @@ void Pointer<T, size>::shutdown(){
         p->refcount = 0;
     }
     collect();
+}
+
+
+template<typename T, int size>
+void swap(Pointer<T, size> &first, Pointer<T, size> &second) {
+  // enable ADL
+  using std::swap;
+
+  swap(first.addr, second.addr);
+  swap(first.isArray, second.isArray);
+  swap(first.arraySize, second.arraySize);
 }
